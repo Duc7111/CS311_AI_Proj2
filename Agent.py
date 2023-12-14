@@ -1,22 +1,25 @@
 
 from World import World
 from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD
+import random
 
 class KnowledgeCell:
 
-    def __init__(self, w: bool = None, p: bool = None) -> None:
+    def __init__(self, w: bool = None, p: bool = None, v: bool = False) -> None:
         self.hasWumpus = w
         self.hasPit = p
+        self.visited = v
 
 class Agent:
 
     def __init__(self, world: World) -> None:
         self.pos = world.agent
-        self.knowledge = [[KnowledgeCell for _ in range(world.n)] for _ in range(world.n)]
+        self.knowledge = [[KnowledgeCell() for _ in range(world.n)] for _ in range(world.n)]
         with world._cellState(self.pos[0], self.pos[1]) as states:
             self.__logic(self.pos[0], self.pos[1], states)
         self.world = world
         self.score = 0
+        self.gold = 0.75
 
     def __logic(self, x: int, y: int, states) -> None:
         if x in range(0, self.world.n) and y in range(0, self.world.n):
@@ -41,8 +44,10 @@ class Agent:
                     return False
                 if states[0] == GOLD:
                     self.score += 100
+                    self.gold += 1
                 # Update knowledge
                 self.__logic(self.pos[0], self.pos[1], states)
+                self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
     def shoot(self, move: tuple) -> bool | None:
         result = self.world.shoot(move)
@@ -51,3 +56,19 @@ class Agent:
         else:
             self.score -= 100
             return result
+        
+    def isQuit(self) -> bool:
+        # count moveable unvisited cells
+        count = 0
+        for i in range(self.world.n):
+            for j in range(self.world.n):
+                k = self.knowledge[i][j]
+                if k.visited or k.hasPit is None or k.hasWumpus is None:
+                    continue
+                if k.hasWumpus:
+                    count += 0.1
+                elif not k.hasPit:
+                    count += 1
+        random.seed()
+        randFactor = random.uniform(0.5, 1.5)
+        return count*randFactor/self.gold < 1
