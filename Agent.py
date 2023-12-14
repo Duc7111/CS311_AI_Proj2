@@ -9,6 +9,7 @@ class KnowledgeCell:
         self.hasWumpus = w
         self.hasPit = p
         self.visited = v
+        self.content = []
 
 class Agent:
 
@@ -21,15 +22,45 @@ class Agent:
         self.score = 0
         self.gold = 0.75
 
+    def __nextCell(self, x: int, y: int) -> list:
+        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, self.world.n) and y + move[1] in range(0, self.world.n)]
+
     def __logic(self, x: int, y: int, states) -> None:
         if x in range(0, self.world.n) and y in range(0, self.world.n):
-            nextCells = [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, self.world.n) and y + move[1] in range(0, self.world.n)]
+            updated = False
+            self.knowledge[x][y].content = states[1:]
+            nextCells = self.__nextCell(x, y)
             if STENCH not in states:
                 for cell in nextCells:
                     self.knowledge[cell[0]][cell[1]].hasWumpus = False
             if BREEZE not in states:
                 for cell in nextCells:
                     self.knowledge[cell[0]][cell[1]].hasPit = False
+            if updated:
+                self.__fullLogic()
+
+    def __fullLogic(self) -> None:
+        for i in range(self.world.n):
+            for j in range(self.world.n):
+                if BREEZE in self.knowledge[i][j].content:
+                    nextCells = self.__nextCell(i, j)
+                    for cell in nextCells:
+                        if self.knowledge[cell[0]][cell[1]].hasPit is True:
+                            break
+                        if self.knowledge[cell[0]][cell[1]].hasPit is False:
+                            nextCells.remove(cell)
+                    if len(nextCells) == 1:
+                        self.knowledge[nextCells[0][0]][nextCells[0][1]].hasPit = True
+                if STENCH in self.knowledge[i][j].content: 
+                    nextCells = self.__nextCell(i, j)
+                    for cell in nextCells:
+                        if self.knowledge[cell[0]][cell[1]].hasWumpus is True:
+                            break
+                        if self.knowledge[cell[0]][cell[1]].hasWumpus is False:
+                            nextCells.remove(cell)
+                    if len(nextCells) == 1:
+                        self.knowledge[nextCells[0][0]][nextCells[0][1]].hasWumpus = True
+
     
     def move(self, move: tuple) -> bool | None: # True if not end else False, None if invalid
         if move in MOVES:
