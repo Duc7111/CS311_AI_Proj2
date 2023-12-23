@@ -14,19 +14,19 @@ class KnowledgeCell:
 class Agent:
 
     def __init__(self, world: World) -> None:
-        self.pos = world.agent
-        self.knowledge = [[KnowledgeCell() for _ in range(world.n)] for _ in range(world.n)]
-        with world._cellState(self.pos[0], self.pos[1]) as states:
+        self.pos = [10, 10] # pos in knowledge, not in world
+        self.knowledge = [[KnowledgeCell() for _ in range(0, 21)] for _ in range(0, 21)]
+        with world._cellState(self.world.agent[0], self.world.agent[1]) as states:
             self.__logic(self.pos[0], self.pos[1], states)
         self.world = world
         self.score = 0
         self.gold = 0.75
 
     def __nextCell(self, x: int, y: int) -> list:
-        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, self.world.n) and y + move[1] in range(0, self.world.n)]
+        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21)]
 
     def __logic(self, x: int, y: int, states) -> None:
-        if x in range(0, self.world.n) and y in range(0, self.world.n):
+        if x in range(0, 21) and y in range(0, 21):
             updated = False
             self.knowledge[x][y].content = states[1:]
             nextCells = self.__nextCell(x, y)
@@ -40,8 +40,8 @@ class Agent:
                 self.__fullLogic()
 
     def __fullLogic(self) -> None:
-        for i in range(self.world.n):
-            for j in range(self.world.n):
+        for i in range(0, 21):
+            for j in range(0, 21):
                 if BREEZE in self.knowledge[i][j].content:
                     nextCells = self.__nextCell(i, j)
                     for cell in nextCells:
@@ -74,7 +74,7 @@ class Agent:
                     self.score -= 10000
                     return False
                 if states[0] == GOLD:
-                    self.score += 100
+                    self.score += 1000
                     self.gold += 1
                 # Update knowledge
                 self.__logic(self.pos[0], self.pos[1], states)
@@ -91,8 +91,8 @@ class Agent:
     def isQuit(self) -> bool:
         # count moveable unvisited cells
         count = 0
-        for i in range(self.world.n):
-            for j in range(self.world.n):
+        for i in range(21):
+            for j in range(21):
                 k = self.knowledge[i][j]
                 if k.visited or k.hasPit is None or k.hasWumpus is None:
                     continue
