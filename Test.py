@@ -12,8 +12,10 @@ from Agent import Agent
 #     root.mainloop()
 
 world = World("input1.txt")
-agent = Agent(world)
+agent = Agent(world=world)
+
+world.printWorld()
 
 while world.agent is not None:
-    world.printWorld()
-    agent.findUnvisitedCell()
+    agent.moveToward()
+    
