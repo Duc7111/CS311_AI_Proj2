@@ -74,7 +74,8 @@ class World:
                 s = True
             if self.__map[x][y + 1].value == PIT:
                 b = True
-        return states.extend([STENCH, BREEZE] if s and b else [STENCH] if s else [BREEZE] if b else [])
+        states.extend([STENCH, BREEZE] if s and b else [STENCH] if s else [BREEZE] if b else [])
+        return states
 
     def move(self, move: tuple) -> list | None:
         if self.agent is None:
