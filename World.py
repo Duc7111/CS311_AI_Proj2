@@ -110,4 +110,10 @@ class World:
             self.__map[x][y].value = EMPTY
             return True
         return None
-        
+    
+    def printWorld(self) -> None:
+        for i in range(self.n):
+            for j in range(self.n):
+                print(self.__map[i][j].value, end = " ")
+            print()
+        print()
