@@ -16,8 +16,8 @@ class Agent:
     def __init__(self, world: World) -> None:
         self.pos = [10, 10] # pos in knowledge, not in world
         self.knowledge = [[KnowledgeCell() for _ in range(0, 21)] for _ in range(0, 21)]
-        with world._cellState(self.world.agent[0], self.world.agent[1]) as states:
-            self.__logic(self.pos[0], self.pos[1], states)
+        states = world._cellState(world.agent[0], world.agent[1])
+        self.__logic(self.pos[0], self.pos[1], states)
         self.world = world
         self.score = 0
         self.gold = 0.75
