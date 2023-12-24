@@ -28,7 +28,7 @@ class World:
         self.n = int(file.readline().replace("\n", ""))
         self.__map = [[None for _ in range(self.n)] for _ in range(self.n)]
         self.agent = None
-        for i in range(self.n):
+        for i in reversed(range(self.n)):
             line = file.readline().replace("\n", "").split(".")
             for j in range(self.n):
                 if line[j] == AGENT:
@@ -37,15 +37,15 @@ class World:
                 self.__map[i][j] = WorldCell(line[j])
         file.close()
         if self.agent is None:
-            self.agent = self.randInit()[0:2]
+            self.agent = self.randInit()
 
     def randInit(self) -> list:
-        for _ in range(100):
+        for _ in range(1000):
             x = randint(0, self.n - 1)
             y = randint(0, self.n - 1)
-            if self.__map[x][y].value != EMPTY:
-                return [x, y, self._cellState(x, y)]
-        return ()
+            if self.__map[x][y].value == EMPTY:
+                return [x, y]
+        return []
     
     def _cellState(self, x: int, y: int) -> list: # 0: cell content, 1: stench (if has), 2: breeze {if has}
         s = False

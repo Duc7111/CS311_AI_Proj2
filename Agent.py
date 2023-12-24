@@ -24,14 +24,13 @@ class Agent:
         self.knowledge = [[KnowledgeCell() for _ in range(0, 21)] for _ in range(0, 21)]
         states = world._cellState(world.agent[0], world.agent[1])
         self.__logic(self.pos[0], self.pos[1], states)
-        self.world = world
         self.score = 0
         self.gold = 0.75
 
     def __nextCell(self, x: int, y: int) -> list:
         return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21)]
 
-    def __logic(self, x: int, y: int, states) -> None:
+    def __logic(self, x: int, y: int, states: list) -> None:
         if x in range(0, 21) and y in range(0, 21):
             updated = False
             self.knowledge[x][y].content = states[1:]
