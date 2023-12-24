@@ -73,6 +73,7 @@ class World:
                 s = True
             if self.__map[x][y + 1].value == PIT:
                 b = True
+
         states.extend([STENCH, BREEZE] if s and b else [STENCH] if s else [BREEZE] if b else [])
         return states
 
@@ -120,6 +121,9 @@ class World:
     def printWorld(self) -> None:
         for i in reversed(range(self.n)):
             for j in range(self.n):
-                print(self.__map[i][j].value, end = " ")
+                if self.agent == [i, j]:
+                    print(AGENT, end = " ")
+                else:
+                    print(self.__map[i][j].value, end = " ")
             print()
         print()
