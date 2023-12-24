@@ -95,6 +95,7 @@ class Agent:
             return None
         else:
             self.score -= 100
+            self.knowledge[self.pos[0] + move[0]][self.pos[1] + move[1]].hasWumpus = False
             return result
         
     def isQuit(self) -> bool:
