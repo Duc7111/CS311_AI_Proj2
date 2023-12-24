@@ -146,8 +146,8 @@ class Agent:
     
     def moveToward(self) -> tuple:
         newPos, path = self.findUnvisitedCell()
-        print("Now at:", self.pos)
-        print("Now go to:", newPos)
+        # print("Now at:", self.pos)
+        # print("Now go to:", newPos)
         if newPos is None:
             return None
         
@@ -168,3 +168,6 @@ class Agent:
             for j in range(0, 21):
                 if self.knowledge[i][j].visited:
                     self.printXYKnowledge(i, j)
+
+    def printScore(self) -> None:
+        print("Score:", self.score)
