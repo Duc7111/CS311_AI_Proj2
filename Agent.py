@@ -1,4 +1,4 @@
-
+import queue
 from World import World
 from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD
 import random
@@ -24,11 +24,14 @@ class Agent:
         self.__logic(self.pos[0], self.pos[1], states)
         self.score = 0
         self.gold = 0.75
+        self.knowledge[self.pos[0]][self.pos[1]].hasWumpus = False
+        self.knowledge[self.pos[0]][self.pos[1]].hasPit = False
+        self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
     def __nextCell(self, x: int, y: int) -> list:
         return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21)]
 
-    def __logic(self, x: int, y: int, states: list) -> None:
+    def __logic(self, x: int, y: int, states) -> None:
         if x in range(0, 21) and y in range(0, 21):
             updated = False
             self.knowledge[x][y].content = states[1:]
@@ -67,21 +70,24 @@ class Agent:
     
     def move(self, move: tuple) -> bool | None: # True if not end else False, None if invalid
         if move in MOVES:
-            with self.world.move(move) as states:
-                # Invalid move
-                if states is None:
-                    return None
-                self.score -= 10
-                # check cell content
-                if states[0] in (WUMPUS, PIT):
-                    self.score -= 10000
-                    return False
-                if states[0] == GOLD:
-                    self.score += 1000
-                    self.gold += 1
-                # Update knowledge
-                self.__logic(self.pos[0], self.pos[1], states)
-                self.knowledge[self.pos[0]][self.pos[1]].visited = True
+            states = self.world.move(move)
+            # Invalid move
+            if states is None:
+                return None
+            # Valid move
+            self.pos[0] += move[0]
+            self.pos[1] += move[1]
+            self.score -= 10
+            # check cell content
+            if states[0] in (WUMPUS, PIT):
+                self.score -= 10000
+                return False
+            if states[0] == GOLD:
+                self.score += 1000
+                self.gold += 1
+            # Update knowledge
+            self.__logic(self.pos[0], self.pos[1], states)
+            self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
     def shoot(self, move: tuple) -> bool | None:
         result = self.world.shoot(move)
@@ -110,36 +116,55 @@ class Agent:
     def printKnowledge(self) -> None:
         for i in range(0, 21):
             for j in range(0, 21):
-                print("(", i, ",", j, ")", sep="")
                 self.knowledge[i][j].print()
+
+    def printXYKnowledge(self, x, y) -> None:
+        print("(", x, ",", y, ")", sep="")
+        self.knowledge[x][y].print()
 
     def findUnvisitedCell(self) -> tuple:
         queue = [self.pos]
-        visited = [self.pos]
+        visited = set()
+        visited.add(tuple(self.pos))
         path = [[None for _ in range(0, 21)] for _ in range(0, 21)]
         path[self.pos[0]][self.pos[1]] = self.pos
 
         while len(queue) > 0:
             current = queue.pop(0)
+            print("Current:", current)
             if self.knowledge[current[0]][current[1]].visited is False:
                 return current, path
             nextCells = self.__nextCell(current[0], current[1])
             for cell in nextCells:
                 if cell not in visited and self.knowledge[cell[0]][cell[1]].hasPit is False and self.knowledge[cell[0]][cell[1]].hasWumpus is False:
+                    print(" Next cell:", cell)
                     path[cell[0]][cell[1]] = current
                     queue.append(cell)
-                    visited.append(cell)
+                    visited.add(tuple(cell))
         
-        return None
+        return None, None
     
     def moveToward(self) -> tuple:
         newPos, path = self.findUnvisitedCell()
+        print("Now at:", self.pos)
+        print("Now go to:", newPos)
         if newPos is None:
             return None
+        
         q = queue.LifoQueue()
-        q.put(newPos)
         while newPos != self.pos:
-            newPos = path[newPos[0]][newPos[1]]
             q.put(newPos)
+            newPos = path[newPos[0]][newPos[1]]
+            
         while q.qsize() > 0:
-            self.move(q.get())
+            next = q.get()
+            nextMove = (next[0] - self.pos[0], next[1] - self.pos[1])
+            self.move(nextMove)
+            print("Now at:", self.pos, " Score:", self.score)
+            self.world.printWorld()
+
+    def printVisitedKnowledge(self) -> None:
+        for i in range(0, 21):
+            for j in range(0, 21):
+                if self.knowledge[i][j].visited:
+                    self.printXYKnowledge(i, j)
