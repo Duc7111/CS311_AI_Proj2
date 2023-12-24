@@ -12,10 +12,8 @@ class KnowledgeCell:
         self.content = []
 
     def print(self):
-        print("Wumpus:", self.hasWumpus)
-        print("Pit:", self.hasPit)
-        print("Visited:", self.visited)
-
+        print("Wumpus:", self.hasWumpus, "Pit:", self.hasPit, "Visited:", self.visited)
+        
 class Agent:
 
     def __init__(self, world: World) -> None:
@@ -115,6 +113,34 @@ class Agent:
             for j in range(0, 21):
                 print("(", i, ",", j, ")", sep="")
                 self.knowledge[i][j].print()
-                print()
-                print()
 
+    def findUnvisitedCell(self) -> tuple:
+        queue = [self.pos]
+        visited = [self.pos]
+        path = [[None for _ in range(0, 21)] for _ in range(0, 21)]
+        path[self.pos[0]][self.pos[1]] = self.pos
+
+        while len(queue) > 0:
+            current = queue.pop(0)
+            if self.knowledge[current[0]][current[1]].visited is False:
+                return current, path
+            nextCells = self.__nextCell(current[0], current[1])
+            for cell in nextCells:
+                if cell not in visited and self.knowledge[cell[0]][cell[1]].hasPit is False and self.knowledge[cell[0]][cell[1]].hasWumpus is False:
+                    path[cell[0]][cell[1]] = current
+                    queue.append(cell)
+                    visited.append(cell)
+        
+        return None
+    
+    def moveToward(self) -> tuple:
+        newPos, path = self.findUnvisitedCell()
+        if newPos is None:
+            return None
+        q = queue.LifoQueue()
+        q.put(newPos)
+        while newPos != self.pos:
+            newPos = path[newPos[0]][newPos[1]]
+            q.put(newPos)
+        while q.qsize() > 0:
+            self.move(q.get())
