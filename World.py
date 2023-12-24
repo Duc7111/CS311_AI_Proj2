@@ -10,11 +10,11 @@ STENCH = "S"
 OUT = "O"
 AGENT = "A"
 
-UP = (0, 1)
-DOWN = (0, -1)
-LEFT = (-1, 0)
-RIGHT = (1, 0)
-MOVES = (UP, DOWN, LEFT, RIGHT)
+UP = (1, 0)
+DOWN = (-1, 0)
+LEFT = (0, -1)
+RIGHT = (0, 1)
+MOVES = (UP, LEFT, RIGHT, DOWN)
 
 class WorldCell:
     
@@ -83,12 +83,12 @@ class World:
             return None
         # condition checking
         if move in MOVES:
-            if self.agent == [0, 0] and move == LEFT:
+            if self.agent == [0, 0] and move == DOWN:
+                self.agent = None
                 return [OUT]
             self.agent[0] += move[0]
             self.agent[1] += move[1]
             if self.agent[0] not in range(0, self.n) or self.agent[1] not in range(0, self.n):
-                self.agent = None
                 print("Invalid move!")
                 self.agent[0] -= move[0]
                 self.agent[1] -= move[1]
