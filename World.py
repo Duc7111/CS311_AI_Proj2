@@ -26,7 +26,7 @@ class World:
     def __init__(self, dir: str):
         file = open(dir, "r")
         self.n = int(file.readline().replace("\n", ""))
-        self.__map = [[None for _ in range(self.n)] for _ in range(self.n)]
+        self.__map = [[WorldCell("-") for _ in range(self.n)] for _ in range(self.n)]
         self.agent = None
         for i in reversed(range(self.n)):
             line = file.readline().replace("\n", "").split(".")
@@ -34,10 +34,9 @@ class World:
                 if line[j] == AGENT:
                     self.__map[i][j].value = EMPTY
                     self.agent = [i, j]
-                self.__map[i][j] = WorldCell(line[j])
+                else:
+                    self.__map[i][j] = WorldCell(line[j])
         file.close()
-        if self.agent is None:
-            self.agent = self.randInit()
 
     def randInit(self) -> list:
         for _ in range(1000):
@@ -118,7 +117,7 @@ class World:
         return None
     
     def printWorld(self) -> None:
-        for i in range(self.n):
+        for i in reversed(range(self.n)):
             for j in range(self.n):
                 print(self.__map[i][j].value, end = " ")
             print()
