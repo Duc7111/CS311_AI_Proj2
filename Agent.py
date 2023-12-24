@@ -11,14 +11,19 @@ class KnowledgeCell:
         self.visited = v
         self.content = []
 
+    def print(self):
+        print("Wumpus:", self.hasWumpus)
+        print("Pit:", self.hasPit)
+        print("Visited:", self.visited)
+
 class Agent:
 
     def __init__(self, world: World) -> None:
         self.pos = [10, 10] # pos in knowledge, not in world
+        self.world = world
         self.knowledge = [[KnowledgeCell() for _ in range(0, 21)] for _ in range(0, 21)]
         with world._cellState(self.world.agent[0], self.world.agent[1]) as states:
             self.__logic(self.pos[0], self.pos[1], states)
-        self.world = world
         self.score = 0
         self.gold = 0.75
 
@@ -103,3 +108,12 @@ class Agent:
         random.seed()
         randFactor = random.uniform(0.5, 1.5)
         return count*randFactor/self.gold < 1
+    
+    def printKnowledge(self) -> None:
+        for i in range(0, 21):
+            for j in range(0, 21):
+                print("(", i, ",", j, ")", sep="")
+                self.knowledge[i][j].print()
+                print()
+                print()
+
