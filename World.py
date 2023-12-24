@@ -8,6 +8,7 @@ EMPTY = "-"
 BREEZE = "B"
 STENCH = "S"
 OUT = "O"
+AGENT = "A"
 
 UP = (0, 1)
 DOWN = (0, -1)
@@ -26,12 +27,17 @@ class World:
         file = open(dir, "r")
         self.n = int(file.readline().replace("\n", ""))
         self.__map = [[None for _ in range(self.n)] for _ in range(self.n)]
+        self.agent = None
         for i in range(self.n):
             line = file.readline().replace("\n", "").split(".")
             for j in range(self.n):
+                if line[j] == AGENT:
+                    self.__map[i][j].value = EMPTY
+                    self.agent = [i, j]
                 self.__map[i][j] = WorldCell(line[j])
         file.close()
-        self.agent = self.randInit()[0:2]
+        if self.agent is None:
+            self.agent = self.randInit()[0:2]
 
     def randInit(self) -> list:
         for _ in range(100):
