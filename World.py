@@ -22,7 +22,7 @@ class WorldCell:
 
 class World:
 
-    def __init___(self, dir: str):
+    def __init__(self, dir: str):
         file = open(dir, "r")
         self.n = int(file.readline().replace("\n", ""))
         self.__map = [[None for _ in range(self.n)] for _ in range(self.n)]
