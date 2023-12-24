@@ -118,6 +118,9 @@ class World:
             return True
         return None
     
+    def isBorder(self, x: int, y: int) -> bool: # x, y is position base on the position of agent
+        return x + self.agent[0] in (0, self.n - 1) or y + self.agent[1] in (0, self.n - 1)
+    
     def printWorld(self) -> None:
         for i in reversed(range(self.n)):
             for j in range(self.n):

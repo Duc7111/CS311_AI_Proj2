@@ -29,7 +29,7 @@ class Agent:
         self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
     def __nextCell(self, x: int, y: int) -> list:
-        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21)]
+        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21) and self.world.isBorder(move[0], move[1]) is False]
 
     def __logic(self, x: int, y: int, states) -> None:
         if x in range(0, 21) and y in range(0, 21):
