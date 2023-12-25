@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import PhotoImage, messagebox
 
 from _cffi_backend import callback
 
@@ -9,13 +9,25 @@ class WumpusWorldApp:
         self.callback = callback  # Callback function to handle button click
         master.title("Wumpus World")
 
-        # Define custom fonts
-        self.title_font = ("Arial", 16, "bold")
-        self.button_font = ("Arial", 12)
+        # Load the background image
+        self.background_image = PhotoImage(file="theme.png")
+        image_width = self.background_image.width()
+        image_height = self.background_image.height()
+
+        # Set the size of the main window based on the image size
+        master.geometry(f"{image_width}x{image_height}")
+
+        # Create a label to display the background image
+        self.background_label = tk.Label(master, image=self.background_image)
+        self.background_label.place(relwidth=1, relheight=1)  # Make the label cover the entire window
 
         # Create and pack the title label
-        self.title_label = tk.Label(master, text="Wumpus World", font=self.title_font)
+        self.title_font = ("Arial", 16, "bold")
+        self.title_label = tk.Label(master, text="Wumpus World", font=self.title_font, bg='white')  # Set background color if needed
         self.title_label.pack(pady=10)
+
+        # Define custom fonts
+        self.button_font = ("Arial", 12)
 
         # Create buttons for each input
         for input in range(1, 5):
