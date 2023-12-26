@@ -29,9 +29,9 @@ class Agent:
         self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
     def __nextCell(self, x: int, y: int) -> list:
-        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21) and self.world.isBorder(move[0], move[1]) is False]
+        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21) and self.world.isBorder(x - self.pos[0] + move[0], y - self.pos[1] + move[1]) is False]
 
-    def __logic(self, x: int, y: int, states) -> None:
+    def __logic(self, x: int, y: int, states: list) -> None:
         if x in range(0, 21) and y in range(0, 21):
             updated = False
             self.knowledge[x][y].content = states[1:]
@@ -39,9 +39,11 @@ class Agent:
             if STENCH not in states:
                 for cell in nextCells:
                     self.knowledge[cell[0]][cell[1]].hasWumpus = False
+                    updated = True
             if BREEZE not in states:
                 for cell in nextCells:
                     self.knowledge[cell[0]][cell[1]].hasPit = False
+                    updated = True
             if updated:
                 self.__fullLogic()
 
@@ -50,20 +52,26 @@ class Agent:
             for j in range(0, 21):
                 if BREEZE in self.knowledge[i][j].content:
                     nextCells = self.__nextCell(i, j)
-                    for cell in nextCells:
+                    k = 0
+                    while k < len(nextCells):
+                        cell = nextCells[k]
                         if self.knowledge[cell[0]][cell[1]].hasPit is True:
                             break
                         if self.knowledge[cell[0]][cell[1]].hasPit is False:
-                            nextCells.remove(cell)
+                            nextCells.pop(k)
+                        else: k += 1
                     if len(nextCells) == 1:
                         self.knowledge[nextCells[0][0]][nextCells[0][1]].hasPit = True
                 if STENCH in self.knowledge[i][j].content: 
                     nextCells = self.__nextCell(i, j)
-                    for cell in nextCells:
+                    k = 0
+                    while k < len(nextCells):
+                        cell = nextCells[k]
                         if self.knowledge[cell[0]][cell[1]].hasWumpus is True:
                             break
                         if self.knowledge[cell[0]][cell[1]].hasWumpus is False:
-                            nextCells.remove(cell)
+                            nextCells.pop(k)
+                        else: k += 1
                     if len(nextCells) == 1:
                         self.knowledge[nextCells[0][0]][nextCells[0][1]].hasWumpus = True
 
@@ -88,6 +96,7 @@ class Agent:
             # Update knowledge
             self.__logic(self.pos[0], self.pos[1], states)
             self.knowledge[self.pos[0]][self.pos[1]].visited = True
+            return True
 
     def shoot(self, move: tuple) -> bool | None:
         result = self.world.shoot(move)
