@@ -17,5 +17,8 @@ agent = Agent(world=world)
 world.printWorld()
 
 while world.agent is not None:
-    agent.moveToward()
+    agent.printXYKnowledge(12, 10)
+    if agent.moveToward() == False:
+        if agent.moveTowardShoot() == False:
+            agent.exit()
     

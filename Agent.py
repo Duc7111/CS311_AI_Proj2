@@ -123,7 +123,7 @@ class Agent:
         print("(", x, ",", y, ")", sep="")
         self.knowledge[x][y].print()
 
-    def findUnvisitedCell(self) -> tuple:
+    def findUnvisitedCell(self, killWUmpus: bool) -> tuple:
         queue = [self.pos]
         visited = set()
         visited.add(tuple(self.pos))
@@ -132,13 +132,19 @@ class Agent:
 
         while len(queue) > 0:
             current = queue.pop(0)
-            print("Current:", current)
-            if self.knowledge[current[0]][current[1]].visited is False:
+            # print("Current:", current)
+            if self.knowledge[current[0]][current[1]].visited is False and self.knowledge[current[0]][current[1]].hasWumpus == killWUmpus:
                 return current, path
             nextCells = self.__nextCell(current[0], current[1])
             for cell in nextCells:
-                if cell not in visited and self.knowledge[cell[0]][cell[1]].hasPit is False and self.knowledge[cell[0]][cell[1]].hasWumpus is False:
-                    print(" Next cell:", cell)
+                if cell not in visited and self.knowledge[cell[0]][cell[1]].hasPit is False:
+                    if killWUmpus == False:
+                        if self.knowledge[cell[0]][cell[1]].hasWumpus is not False:
+                            continue
+                    elif killWUmpus == True:
+                        if self.knowledge[cell[0]][cell[1]].hasWumpus is True:
+                            self.printXYKnowledge(cell[0], cell[1])
+                    # print(" Next cell:", cell)
                     path[cell[0]][cell[1]] = current
                     queue.append(cell)
                     visited.add(tuple(cell))
@@ -146,11 +152,9 @@ class Agent:
         return None, None
     
     def moveToward(self) -> tuple:
-        newPos, path = self.findUnvisitedCell()
-        # print("Now at:", self.pos)
-        # print("Now go to:", newPos)
+        newPos, path = self.findUnvisitedCell(killWUmpus = False)
         if newPos is None:
-            return None
+            return False
         
         q = queue.LifoQueue()
         while newPos != self.pos:
@@ -163,6 +167,35 @@ class Agent:
             self.move(nextMove)
             print("Now at:", self.pos, " Score:", self.score)
             self.world.printWorld()
+        
+        return True
+
+    def moveTowardShoot(self) -> tuple:
+        print("Shoot")
+        newPos, path = self.findUnvisitedCell(killWUmpus = True)
+        if newPos is None:
+            return False
+        
+        q = queue.LifoQueue()
+        while newPos != self.pos:
+            q.put(newPos)
+            newPos = path[newPos[0]][newPos[1]]
+            
+        while q.qsize() > 0:
+            next = q.get()
+            nextMove = (next[0] - self.pos[0], next[1] - self.pos[1])
+            if q.qsize() == 1:
+                self.shoot(nextMove)
+            self.move(nextMove)
+            print("Now at:", self.pos, " Score:", self.score)
+            self.world.printWorld()
+
+        return True
+    
+    def exit(self) -> None:
+        print("Exit")
+        self.score += 10
+        self.world.agent = None
 
     def printVisitedKnowledge(self) -> None:
         for i in range(0, 21):
