@@ -193,7 +193,8 @@ class Agent:
         while q.qsize() > 0:
             next = q.get()
             nextMove = (next[0] - self.pos[0], next[1] - self.pos[1])
-            if q.qsize() == 1:
+            if q.qsize() == 0:
+                print("Shoot at:", next)
                 self.shoot(nextMove)
             self.move(nextMove)
             print("Now at:", self.pos, " Score:", self.score)
