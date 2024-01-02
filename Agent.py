@@ -1,6 +1,6 @@
 import queue
 from World import World
-from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD
+from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD, OUT
 import random
 
 class KnowledgeCell:
@@ -28,8 +28,8 @@ class Agent:
         self.knowledge[self.pos[0]][self.pos[1]].hasPit = False
         self.knowledge[self.pos[0]][self.pos[1]].visited = True
 
-    def __nextCell(self, x: int, y: int) -> list:
-        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21) and self.world.isBorder(x - self.pos[0] + move[0], y - self.pos[1] + move[1]) is False]
+    def __nextCell(self, x: int, y: int, exit: bool = True) -> list:
+        return [(x + move[0], y + move[1]) for move in MOVES if x + move[0] in range(0, 21) and y + move[1] in range(0, 21) and self.world.isBorder(x - self.pos[0] + move[0], y - self.pos[1] + move[1], exit) is False]
 
     def __logic(self, x: int, y: int, states: list) -> None:
         if x in range(0, 21) and y in range(0, 21):
@@ -82,6 +82,11 @@ class Agent:
             # Invalid move
             if states is None:
                 return None
+            #Exit
+            if states is OUT:
+                self.score += 10
+                self.world.agent = None
+                return True
             # Valid move
             self.pos[0] += move[0]
             self.pos[1] += move[1]
@@ -132,7 +137,7 @@ class Agent:
         print("(", x, ",", y, ")", sep="")
         self.knowledge[x][y].print()
 
-    def findUnvisitedCell(self, killWUmpus: bool) -> tuple:
+    def findUnvisitedCell(self, killWUmpus: bool, exit: bool = False) -> tuple:
         queue = [self.pos]
         visited = set()
         visited.add(tuple(self.pos))
@@ -141,23 +146,20 @@ class Agent:
 
         while len(queue) > 0:
             current = queue.pop(0)
-            # print("Current:", current)
+
             if self.knowledge[current[0]][current[1]].visited is False and self.knowledge[current[0]][current[1]].hasWumpus == killWUmpus:
                 return current, path
-            nextCells = self.__nextCell(current[0], current[1])
+            
+            nextCells = self.__nextCell(current[0], current[1], exit)
             for cell in nextCells:
                 if cell not in visited and self.knowledge[cell[0]][cell[1]].hasPit is False:
                     if killWUmpus == False:
                         if self.knowledge[cell[0]][cell[1]].hasWumpus is not False:
                             continue
-                    elif killWUmpus == True:
-                        if self.knowledge[cell[0]][cell[1]].hasWumpus is True:
-                            self.printXYKnowledge(cell[0], cell[1])
-                    # print(" Next cell:", cell)
                     path[cell[0]][cell[1]] = current
                     queue.append(cell)
                     visited.add(tuple(cell))
-        
+
         return None, None
     
     def moveToward(self) -> tuple:
@@ -203,9 +205,28 @@ class Agent:
         return True
     
     def exit(self) -> None:
-        print("Exit")
-        self.score += 10
-        self.world.agent = None
+        newPos, path = self.findUnvisitedCell(killWUmpus = False, exit = True)
+        if newPos is None:
+            return False
+        
+        q = queue.LifoQueue()
+        while newPos != self.pos:
+            q.put(newPos)
+            newPos = path[newPos[0]][newPos[1]]
+            
+        while q.qsize() > 0:
+            next = q.get()
+            nextMove = (next[0] - self.pos[0], next[1] - self.pos[1])
+            self.move(nextMove)
+            if self.world.agent is not None:
+               print("Now at:", self.pos, " Score:", self.score)
+            else:
+                print("Exit!")
+            self.world.printWorld()
+        
+        print("Exited with score:", self.score)
+
+        return True
 
     def printVisitedKnowledge(self) -> None:
         for i in range(0, 21):

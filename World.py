@@ -84,7 +84,7 @@ class World:
         # condition checking
         if move in MOVES:
             if self.agent == [0, 0] and move == DOWN:
-                return [OUT]
+                return OUT
             self.agent[0] += move[0]
             self.agent[1] += move[1]
             if self.agent[0] not in range(0, self.n) or self.agent[1] not in range(0, self.n):
@@ -117,10 +117,12 @@ class World:
             return True
         return None
     
-    def isBorder(self, x: int, y: int) -> bool: # x, y is position base on the position of agent
+    def isBorder(self, x: int, y: int, exiting: bool) -> bool: # x, y is position base on the position of agent
         pos_x = self.agent[0] + x
         pos_y = self.agent[1] + y
-        return (pos_x not in range(0, self.n) or pos_y not in range(0, self.n))# and (pos_x, pos_y) != (-1, 0) # skip exist move
+        if exiting:
+            return (pos_x not in range(0, self.n) or pos_y not in range(0, self.n)) and (pos_x, pos_y) != (-1, 0) # skip exist move
+        return (pos_x not in range(0, self.n) or pos_y not in range(0, self.n))
     
     def printWorld(self) -> None:
         for i in reversed(range(self.n)):
