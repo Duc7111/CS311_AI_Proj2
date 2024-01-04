@@ -21,15 +21,15 @@ def convertKnowledge(KnowledgeCell):
     elif KnowledgeCell.hasPit == True:
         return "Pit"
     elif KnowledgeCell.hasWumpus == True:
-        return "Wumpus"
+        return "Wump"
     elif KnowledgeCell.hasPit == None and KnowledgeCell.hasWumpus == None:
         return "?"
     elif KnowledgeCell.hasPit == False and KnowledgeCell.hasWumpus == False:
         return "Safe"
     elif KnowledgeCell.hasPit == False and KnowledgeCell.hasWumpus == None:
-        return "No Pit"
+        return "Pit-"
     elif KnowledgeCell.hasPit == None and KnowledgeCell.hasWumpus == False:
-        return "No Wumpus"
+        return "Wum-"
     elif KnowledgeCell.hasVisited == True: 
         return "Visited"
     else:
@@ -47,7 +47,7 @@ class WumpusWorldApp:
         image_height = self.background_image.height()
 
         # Set the size of the main window based on the image size
-        master.geometry(f"{image_width}x{image_height}")
+        master.geometry(f"{image_width}x{image_height*2}")
 
         # Create a label to display the background image
         self.background_label = tk.Label(master, image=self.background_image)
@@ -62,7 +62,7 @@ class WumpusWorldApp:
         self.button_font = ("Arial", 12)
 
         # Create buttons for each input
-        for input in range(1, 5):
+        for input in range(1, 6):
             button_text = f"{input}. Input {input}"
             input_button = tk.Button(master, text=button_text, command=lambda l=input: self.on_input_click(l),
                                      font=self.button_font)
@@ -79,7 +79,7 @@ class WumpusWorldApp:
             widget.destroy()
 
 class KnowledgeBoard:
-    def __init__(self, master, knowledge,world,agent,min_x,max_x,min_y,max_y, cell_size=100, offset_x=30, offset_y=30):
+    def __init__(self, master, knowledge,world,agent,min_x,max_x,min_y,max_y, cell_size=60, offset_x=30, offset_y=30):
         self.canvas = tk.Canvas(master, bg="white")
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.cell_size = cell_size
@@ -119,17 +119,20 @@ class KnowledgeBoard:
                 )
                 if [reversed_i, j] == world.agent:
                     text = "A"
+                    text_color = "red"
                 elif cell_content == True:
                     if(board[reversed_i][j].content!=""):
                         text = str(board[reversed_i][j].content)
                     else:
                         text = str("")
+                    text_color = "black"
                 else:
                     text = str(cell_content_1)
+                    text_color = "black"
                 #text = "A" if [reversed_i, j] == world.agent else str(cell_content_1)
                 self.canvas.create_text(
                     cell_x + self.cell_size // 2, cell_y + self.cell_size // 2,
-                    text=text, font=("Arial", 13)
+                    text=text, font=("Arial", 13),fill=text_color
                 )
         self.score_label.config(text=f"Score: {agent.score}")
         if move == 0:

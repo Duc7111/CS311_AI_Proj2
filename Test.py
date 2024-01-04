@@ -42,7 +42,6 @@ def moveToward(agent,world,knowledge_board,min_x,max_x,min_y,max_y):
         return True
 def moveTowardShoot(agent,world,knowledge_board,min_x,max_x,min_y,max_y):
     move = 0
-    print("Shoot")
     newPos, path = agent.findUnvisitedCell(killWUmpus = True)
     if newPos is None:
         return False
@@ -113,7 +112,7 @@ if __name__ == '__main__':
         max_y = 10-world.agent[1]+world.n
         # Create an instance of KnowledgeBoard
         knowledge_board = KnowledgeBoard(root, knowledge=agent.knowledge,world=world,agent=agent,min_x=min_x,max_x=max_x,min_y=min_y,max_y=max_y)
-
+        root.geometry(f"{800}x{800}")
         world.printWorld()
         
         while world.agent is not None:
