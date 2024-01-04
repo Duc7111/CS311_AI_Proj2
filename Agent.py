@@ -131,6 +131,7 @@ class Agent:
     def printKnowledge(self) -> None:
         for i in range(0, 21):
             for j in range(0, 21):
+                print("(", i, ",", j, ")", sep=""  )
                 self.knowledge[i][j].print()
 
     def printXYKnowledge(self, x, y) -> None:
