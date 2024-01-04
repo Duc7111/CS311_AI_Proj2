@@ -148,8 +148,13 @@ class Agent:
         while len(queue) > 0:
             current = queue.pop(0)
 
-            if self.knowledge[current[0]][current[1]].visited is False and self.knowledge[current[0]][current[1]].hasWumpus == killWUmpus:
-                return current, path
+            if self.knowledge[current[0]][current[1]].visited is False:
+                if killWUmpus == False:
+                    if self.knowledge[current[0]][current[1]].hasWumpus is False:
+                        return current, path
+                else:
+                    if self.knowledge[current[0]][current[1]].hasWumpus is not False:
+                        return current, path
             
             nextCells = self.__nextCell(current[0], current[1], exit)
             for cell in nextCells:
