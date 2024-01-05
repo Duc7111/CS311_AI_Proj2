@@ -81,7 +81,7 @@ class WumpusWorldApp:
 class KnowledgeBoard:
     def __init__(self, master, knowledge,world,agent,min_x,max_x,min_y,max_y, cell_size=60, offset_x=30, offset_y=30):
         self.canvas = tk.Canvas(master, bg="white")
-        self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas.grid(row=0, column=0, sticky="nsew")  # Grid for canvas
         self.cell_size = cell_size
         self.offset_x = offset_x
         self.offset_y = offset_y
@@ -90,9 +90,9 @@ class KnowledgeBoard:
         self.max_x = max_x
         self.max_y = max_y  
         self.score_label = tk.Label(master, text="Score: 0", font=("Arial", 16))
-        self.score_label.pack()
+        self.score_label.grid(row=0, column=1, sticky="w", padx=10)  # Grid for score_label
         self.action_label = tk.Label(master, text="Action: ", font=("Arial", 16))
-        self.action_label.pack()
+        self.action_label.grid(row=0, column=2, columnspan=2, sticky="w", padx=10)  # Grid for action_label
         self.move=0#0:move,1:shoot
         self.update_knowledge(knowledge,world,agent,self.move)
         
@@ -137,5 +137,7 @@ class KnowledgeBoard:
         self.score_label.config(text=f"Score: {agent.score}")
         if move == 0:
             self.action_label.config(text=f"Action: Move")
+        elif move == 2:
+            self.action_label.config(text=f"Action: Exit")
         else:
             self.action_label.config(text=f"Action: Shoot")

@@ -35,7 +35,7 @@ def moveToward(agent,world,knowledge_board,min_x,max_x,min_y,max_y):
                         print(agent.knowledge[i][j].content, end=' ')
                 print()
         app.master.update()
-        app.master.after(1000)
+        app.master.after(100)
         print("Now at:", agent.pos, " Score:", agent.score)
         agent.world.printWorld()
         
@@ -93,6 +93,10 @@ def exit(agent,world,knowledge_board,min_x,max_x,min_y,max_y):
             print("Now at:", agent.pos, " Score:", agent.score)
         else:
             tk.messagebox.showinfo("Exit the map", "Score: "+str(agent.score)+"\n"+"Exit the map")
+            move = 2
+            knowledge_board.update_knowledge(agent.knowledge,world,agent,move)
+            app.master.update()
+            app.master.after(1000)
             print("Exit!")
         agent.world.printWorld()
             
