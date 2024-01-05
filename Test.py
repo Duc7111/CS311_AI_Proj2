@@ -35,7 +35,7 @@ def moveToward(agent,world,knowledge_board,min_x,max_x,min_y,max_y):
                         print(agent.knowledge[i][j].content, end=' ')
                 print()
         app.master.update()
-        app.master.after(100)
+        app.master.after(1000)
         print("Now at:", agent.pos, " Score:", agent.score)
         agent.world.printWorld()
         
