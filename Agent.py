@@ -1,6 +1,6 @@
 import queue
 from World import World
-from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD, OUT
+from World import MOVES, WUMPUS, PIT, STENCH, BREEZE, GOLD, OUT, STAY
 import random
 
 class KnowledgeCell:
@@ -102,6 +102,10 @@ class Agent:
             self.__logic(self.pos[0], self.pos[1], states)
             self.knowledge[self.pos[0]][self.pos[1]].visited = True
             return True
+        if move == STAY:
+            states = self.world.move(move)
+            self.__logic(self.pos[0], self.pos[1], states)
+            return True
 
     def shoot(self, move: tuple) -> bool | None:
         result = self.world.shoot(move)
@@ -110,6 +114,7 @@ class Agent:
         else:
             self.score -= 100
             self.knowledge[self.pos[0] + move[0]][self.pos[1] + move[1]].hasWumpus = False
+            self.move(STAY)
             return result
         
     def isQuit(self) -> bool:
@@ -138,6 +143,23 @@ class Agent:
         print("(", x, ",", y, ")", sep="")
         self.knowledge[x][y].print()
 
+    def shouldShoot(self, x: int, y: int) -> bool:
+        queue = [(x, y)]
+        visited = set()
+        visited.add((x, y))
+        while len(queue) > 0:
+            current = queue.pop(0)
+            nextCells = self.__nextCell(current[0], current[1])
+            for cell in nextCells:
+                if cell not in visited:
+                    if self.knowledge[cell[0]][cell[1]].visited is False:
+                        if self.knowledge[cell[0]][cell[1]].hasWumpus is None and self.knowledge[cell[0]][cell[1]].hasPit is None:
+                            return True                    
+                        else:
+                            queue.append(cell)
+                            visited.add(cell)
+        return False    
+
     def findUnvisitedCell(self, killWUmpus: bool, exit: bool = False) -> tuple:
         queue = [self.pos]
         visited = set()
@@ -153,7 +175,7 @@ class Agent:
                     if self.knowledge[current[0]][current[1]].hasWumpus is False:
                         return current, path
                 else:
-                    if self.knowledge[current[0]][current[1]].hasWumpus is not False:
+                    if self.knowledge[current[0]][current[1]].hasWumpus is not False and self.shouldShoot(current[0], current[1]) is True:
                         return current, path
             
             nextCells = self.__nextCell(current[0], current[1], exit)
@@ -204,7 +226,8 @@ class Agent:
             if q.qsize() == 0:
                 print("Shoot at:", next)
                 self.shoot(nextMove)
-            self.move(nextMove)
+            else:
+                self.move(nextMove)
             print("Now at:", self.pos, " Score:", self.score)
             self.world.printWorld()
 

@@ -14,6 +14,7 @@ UP = (1, 0)
 DOWN = (-1, 0)
 LEFT = (0, -1)
 RIGHT = (0, 1)
+STAY = (0, 0)
 MOVES = (UP, LEFT, RIGHT, DOWN)
 
 class WorldCell:
@@ -102,8 +103,13 @@ class World:
             else:
                 self.__map[self.agent[0]][self.agent[1]].value = EMPTY
                 return states
+        if move == STAY:
+            # update map
+            states = self._cellState(self.agent[0], self.agent[1])
+            return states
         print("Invalid move!")
         return None
+
     
     def shoot(self, move: tuple) -> bool | None:
         if move in MOVES:
